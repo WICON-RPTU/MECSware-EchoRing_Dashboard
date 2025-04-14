@@ -71,6 +71,18 @@
             justify-content: center;
             text-align: center;
         }
+
+        .ip-input {
+            max-width: 100px;
+        }
+
+        .port-input {
+            max-width: 100px;
+        }
+
+        .name-input {
+            max-width: 400px;
+        }
     </style>
 </head>
 <body>
@@ -89,20 +101,20 @@
         <div class="col-md-3">
             <div class="input-group">
                 <span class="input-group-text label">IP Address</span>
-                <input id="ip" class="form-control" placeholder="IP Address" value="10.0.1.2">
+                <input id="ip" class="form-control ip-input" placeholder="IP Address" value="10.0.1.2">
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3" style="margin-left: -40px;">
             <div class="input-group">
                 <span class="input-group-text label">Port</span>
-                <input id="port" class="form-control" placeholder="Port" value="6327">
+                <input id="port" class="form-control port-input" placeholder="Port" value="6327">
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3" style="margin-left: -40px;">
             <div class="input-group mb-2">
             <span class="input-group-text label">Name</span>
-            <select id="freq" class="form-select narrow-select">
-                <option selected disabled>BS5</option>
+            <select id="name" class="form-select name-input">
+                <option selected disabled>Select Base Station</option>
                 <option>BS5</option>
                 <option>BS6</option>
                 <option>BS7</option>
@@ -236,8 +248,8 @@
     <div class="card-body p-3">
       <h6 class="card-title mb-3 text-center">EchoRing Control</h6>
       <div class="d-flex flex-column align-items-center gap-2">
-        <button class="btn btn-outline-warning btn-sm fw-bold buttonEchoring" onclick="echoringOFF()">EchoRing ON</button>
-        <button class="btn btn-outline-secondary btn-sm fw-bold buttonEchoring" onclick="echoringON()">EchoRing OFF</button>
+        <button class="btn btn-outline-warning btn-sm fw-bold buttonEchoring" onclick="echoringOFF()">EchoRing OFF</button>
+        <button class="btn btn-outline-secondary btn-sm fw-bold buttonEchoring" onclick="echoringON()">EchoRing ON</button>
   
         <!-- Label and number side by side -->
         <div class="d-flex align-items-center gap-2">
