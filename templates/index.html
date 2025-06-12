@@ -240,6 +240,14 @@
           <div class="text-muted small fw-bold">Predicted Network Load:</div>
           <div id="robotStatus" class="status-box bg-secondary text-white">--</div>
         </div>
+        <!-- MQTT topic selection -->
+        <div class="input-group input-group-sm mt-2">
+          <select id="robotTopic" class="form-select">
+            <option value="/robot">/robot</option>
+            <option value="/echoringfeedback">/echoringfeedback</option>
+          </select>
+          <input id="robotTopicMsg" class="form-control" readonly>
+        </div>
       </div>
     </div>
   </div>
@@ -255,6 +263,14 @@
         <div class="d-flex align-items-center gap-2">
           <div class="text-muted small fw-bold">Current TX:</div>
           <div id="echoringStatus" class="status-box bg-secondary text-white">--</div>
+        </div>
+        <!-- MQTT topic selection -->
+        <div class="input-group input-group-sm mt-2">
+          <select id="echoringTopic" class="form-select">
+            <option value="/echoringfeedback">/echoringfeedback</option>
+            <option value="/robot">/robot</option>
+          </select>
+          <input id="echoringTopicMsg" class="form-control" readonly>
         </div>
       </div>
     </div>
@@ -346,8 +362,8 @@
             statusBox.className = 'status-box bg-danger text-white';
         }
     }
-        setInterval(updateRandom, 1000);
-      
+setInterval(updateRandom, 1000);
+
     function fetchEchoringStatus() {
         fetch('/api/echoring-status')
             .then(response => response.json())
@@ -359,8 +375,23 @@
         });
     }
 
+    function fetchSelectedTopic(selectId, inputId) {
+        const topic = document.getElementById(selectId).value;
+        if (!topic) return;
+        fetch('/api/mqtt-message?topic=' + encodeURIComponent(topic))
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(inputId).value = data.message || '--';
+            })
+            .catch(error => {
+                console.error('Error fetching topic message:', error);
+            });
+    }
+
 // Start polling every 2 seconds
 setInterval(fetchEchoringStatus, 2000);
+setInterval(() => fetchSelectedTopic('robotTopic', 'robotTopicMsg'), 2000);
+setInterval(() => fetchSelectedTopic('echoringTopic', 'echoringTopicMsg'), 2000);
 
 
 </script>
