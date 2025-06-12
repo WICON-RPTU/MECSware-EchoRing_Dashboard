@@ -13,10 +13,11 @@ MQTT_PORT = 1337
 # MQTT subscriber config
 MQTT_SUB_BROKER = "10.0.5.3"
 MQTT_SUB_PORT = 1335
-MQTT_SUB_TOPIC = "/echoringfeedback"
+MQTT_SUB_TOPIC = "#"  # subscribe to all topics
 
-# Store latest received MQTT message
+# Store latest received MQTT messages
 latest_echoring_message = "--"
+latest_messages = {}
 
 
 @app.route('/')
@@ -115,6 +116,13 @@ def echoring_status():
     return jsonify({"status": latest_echoring_message})
 
 
+@app.route('/api/mqtt-message')
+def mqtt_message():
+    topic = request.args.get('topic')
+    message = latest_messages.get(topic, "--")
+    return jsonify({"message": message})
+
+
 # MQTT Subscriber Thread
 def on_connect(client, userdata, flags, rc):
     print("[MQTT] Connected with result code", rc)
@@ -125,7 +133,9 @@ def on_message(client, userdata, msg):
     global latest_echoring_message
     message = msg.payload.decode()
     print(f"[MQTT] Topic: {msg.topic}, Message: {message}")
-    latest_echoring_message = message
+    latest_messages[msg.topic] = message
+    if msg.topic == "/echoringfeedback":
+        latest_echoring_message = message
 
 
 def mqtt_subscriber():
