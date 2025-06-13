@@ -320,6 +320,26 @@
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
 
+    async function echoOff() {
+        const res = await fetch('/api/send-mqtt', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ topic: '/echoringfeedback', payload: 'echoOff' })
+        });
+        const json = await res.json();
+        updateOutput(json.status || json.error || 'MQTT message sent.');
+    }
+
+    async function echoOn() {
+        const res = await fetch('/api/send-mqtt', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ topic: '/echoringfeedback', payload: 'echoOn' })
+        });
+        const json = await res.json();
+        updateOutput(json.status || json.error || 'MQTT message sent.');
+    }
+
     function getFormData() {
         return {
             ip: document.getElementById('ip').value,
