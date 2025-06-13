@@ -45,10 +45,6 @@
 
         #robotCard {
             max-width: 300px;
-            position: absolute;
-            top: 250px;
-            left: 700px;
-            z-index: 10;
         }
 
         .status-box {
@@ -60,10 +56,6 @@
 
         #echoringCard {
             max-width: 300px;
-            position: absolute;
-            top: 250px;
-            left: 1000px;
-            z-index: 10;
         }
 
         .buttonEchoring {
@@ -128,77 +120,122 @@
         </div>
     </div>
 
-<div class="row mb-4 align-items-center">
-    <div class="col-md-9">
-        <div class="input-group mb-2">
-            <span class="input-group-text label">Frequency</span>
-            <select id="freq" class="form-select narrow-select">
-                <option selected disabled>Pick Frequency</option>
-                <option>3710</option>
-                <option>3720</option>
-                <option>3730</option>
-                <option>3740</option>
-                <option>3750</option>
-                <option>3760</option>
-                <option>3770</option>
-                <option>3780</option>
-                <option>3790</option>
-            </select>
-            <span class="input-group-text unit">MHz</span>
-        </div>
-        <div class="input-group mb-2">
-            <span class="input-group-text label">Bandwidth</span>
-            <select id="bw" class="form-select narrow-select">
-                <option selected disabled>Pick Bandwidth</option>
-                <option>20</option>
-                <option>40</option>
-                <option>50</option>
-                <option>60</option>
-                <option>80</option>
-                <option>90</option>
-                <option>100</option>
-            </select>
-            <span class="input-group-text unit">MHz</span>
-        </div>
-        <div class="input-group mb-2">
-            <span class="input-group-text label">Ratio</span>
-            <select id="ratio" class="form-select narrow-select">
-                <option selected disabled>Pick Ratio</option>
-                <option>5:5</option>
-                <option>7:3</option>
-                <option>4:1</option>
-            </select>
-            <span class="input-group-text unit" style="visibility: hidden;">TDD</span>
-        </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text label">Power</span>
-            <select id="power" class="form-select narrow-select">
-                <option selected disabled>Pick Power</option>
-                <option>0</option>
-                <option>2</option>
-                <option>4</option>
-                <option>6</option>
-                <option>8</option>
-                <option>10</option>
-                <option>12</option>
-                <option>14</option>
-                <option>16</option>
-                <option>18</option>
-                <option>20</option>
-            </select>
-            <span class="input-group-text unit">dBm</span>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-4 offset-md-0">
-              <div class="input-group">
-                <span class="input-group-text label" style="visibility: hidden;">Label</span>
-                <button class="btn btn-primary btn-sm w-100 narrow-select rounded" onclick="submitConfig()">Submit Configuration</button>
-                <span class="input-group-text unit" style="visibility: hidden;">unit</span>
-              </div>
-            </div>
-          </div>
-                       
+<div class="row mb-4">
+  <!-- Left: Configuration Panel -->
+  <div class="col-md-6">
+    <div class="input-group mb-2">
+      <span class="input-group-text label">Frequency</span>
+      <select id="freq" class="form-select narrow-select">
+        <option selected disabled>Pick Frequency</option>
+        <option>3710</option>
+        <option>3720</option>
+        <option>3730</option>
+        <option>3740</option>
+        <option>3750</option>
+        <option>3760</option>
+        <option>3770</option>
+        <option>3780</option>
+        <option>3790</option>
+      </select>
+      <span class="input-group-text unit">MHz</span>
     </div>
+    <div class="input-group mb-2">
+      <span class="input-group-text label">Bandwidth</span>
+      <select id="bw" class="form-select narrow-select">
+        <option selected disabled>Pick Bandwidth</option>
+        <option>20</option>
+        <option>40</option>
+        <option>50</option>
+        <option>60</option>
+        <option>80</option>
+        <option>90</option>
+        <option>100</option>
+      </select>
+      <span class="input-group-text unit">MHz</span>
+    </div>
+    <div class="input-group mb-2">
+      <span class="input-group-text label">Ratio</span>
+      <select id="ratio" class="form-select narrow-select">
+        <option selected disabled>Pick Ratio</option>
+        <option>5:5</option>
+        <option>7:3</option>
+        <option>4:1</option>
+      </select>
+      <span class="input-group-text unit" style="visibility: hidden;">TDD</span>
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text label">Power</span>
+      <select id="power" class="form-select narrow-select">
+        <option selected disabled>Pick Power</option>
+        <option>0</option>
+        <option>2</option>
+        <option>4</option>
+        <option>6</option>
+        <option>8</option>
+        <option>10</option>
+        <option>12</option>
+        <option>14</option>
+        <option>16</option>
+        <option>18</option>
+        <option>20</option>
+      </select>
+      <span class="input-group-text unit">dBm</span>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text label" style="visibility: hidden;">Label</span>
+          <button class="btn btn-primary btn-sm w-100 narrow-select rounded" onclick="submitConfig()">Submit Configuration</button>
+          <span class="input-group-text unit" style="visibility: hidden;">unit</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Robot and EchoRing Cards -->
+  <div class="col-md-6 d-flex flex-column flex-md-row justify-content-start gap-3">
+    <div id="robotCard" class="card shadow-sm w-100">
+      <div class="card-body p-3">
+        <h6 class="card-title mb-3 text-center">Robot Control</h6>
+        <div class="d-flex flex-column align-items-center gap-2">
+          <button class="btn btn-outline-warning btn-sm fw-bold buttonRobots" onclick="sendRobot()">Call Robots</button>
+          <button class="btn btn-outline-secondary btn-sm fw-bold buttonRobots" onclick="deliverCargo()">Deliver Cargo</button>
+          <div class="d-flex align-items-center gap-2">
+            <div class="text-muted small fw-bold">Predicted Network Load:</div>
+            <div id="robotStatus" class="status-box bg-secondary text-white">--</div>
+          </div>
+          <div class="input-group input-group-sm mt-2">
+            <select id="robotTopic" class="form-select">
+              <option value="/robot">/robot</option>
+              <option value="/echoringfeedback">/echoringfeedback</option>
+            </select>
+            <input id="robotTopicMsg" class="form-control" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="echoringCard" class="card shadow-sm w-100">
+      <div class="card-body p-3">
+        <h6 class="card-title mb-3 text-center">EchoRing Control</h6>
+        <div class="d-flex flex-column align-items-center gap-2">
+          <button class="btn btn-outline-warning btn-sm fw-bold buttonEchoring" onclick="echoringOFF()">EchoRing OFF</button>
+          <button class="btn btn-outline-secondary btn-sm fw-bold buttonEchoring" onclick="echoringON()">EchoRing ON</button>
+          <div class="d-flex align-items-center gap-2">
+            <div class="text-muted small fw-bold">Current TX:</div>
+            <div id="echoringStatus" class="status-box bg-secondary text-white">--</div>
+          </div>
+          <div class="input-group input-group-sm mt-2">
+            <select id="echoringTopic" class="form-select">
+              <option value="/echoringfeedback">/echoringfeedback</option>
+              <option value="/robot">/robot</option>
+            </select>
+            <input id="echoringTopicMsg" class="form-control" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
     <div class="mb-3">
@@ -228,53 +265,6 @@
   </div>
 
 
-<div id="robotCard" class="card shadow-sm">
-    <div class="card-body p-3">
-      <h6 class="card-title mb-3 text-center">Robot Control</h6>
-      <div class="d-flex flex-column align-items-center gap-2">
-        <button class="btn btn-outline-warning btn-sm fw-bold buttonRobots" onclick="sendRobot()">Call Robots</button>
-        <button class="btn btn-outline-secondary btn-sm fw-bold buttonRobots" onclick="deliverCargo()">Deliver Cargo</button>
-  
-        <!-- Label and number side by side -->
-        <div class="d-flex align-items-center gap-2">
-          <div class="text-muted small fw-bold">Predicted Network Load:</div>
-          <div id="robotStatus" class="status-box bg-secondary text-white">--</div>
-        </div>
-        <!-- MQTT topic selection -->
-        <div class="input-group input-group-sm mt-2">
-          <select id="robotTopic" class="form-select">
-            <option value="/robot">/robot</option>
-            <option value="/echoringfeedback">/echoringfeedback</option>
-          </select>
-          <input id="robotTopicMsg" class="form-control" readonly>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="echoringCard" class="card shadow-sm">
-    <div class="card-body p-3">
-      <h6 class="card-title mb-3 text-center">EchoRing Control</h6>
-      <div class="d-flex flex-column align-items-center gap-2">
-        <button class="btn btn-outline-warning btn-sm fw-bold buttonEchoring" onclick="echoringOFF()">EchoRing OFF</button>
-        <button class="btn btn-outline-secondary btn-sm fw-bold buttonEchoring" onclick="echoringON()">EchoRing ON</button>
-  
-        <!-- Label and number side by side -->
-        <div class="d-flex align-items-center gap-2">
-          <div class="text-muted small fw-bold">Current TX:</div>
-          <div id="echoringStatus" class="status-box bg-secondary text-white">--</div>
-        </div>
-        <!-- MQTT topic selection -->
-        <div class="input-group input-group-sm mt-2">
-          <select id="echoringTopic" class="form-select">
-            <option value="/echoringfeedback">/echoringfeedback</option>
-            <option value="/robot">/robot</option>
-          </select>
-          <input id="echoringTopicMsg" class="form-control" readonly>
-        </div>
-      </div>
-    </div>
-  </div>
  
 <script>
     async function submitConfig() {
