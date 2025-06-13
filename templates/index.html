@@ -219,8 +219,8 @@
       <div class="card-body p-3">
         <h6 class="card-title mb-3 text-center">EchoRing Control</h6>
         <div class="d-flex flex-column align-items-center gap-2">
-          <button class="btn btn-outline-warning btn-sm fw-bold buttonEchoring" onclick="echoringOFF()">EchoRing OFF</button>
-          <button class="btn btn-outline-secondary btn-sm fw-bold buttonEchoring" onclick="echoringON()">EchoRing ON</button>
+          <button class="btn btn-outline-warning btn-sm fw-bold buttonEchoring" onclick="echoOFF()">EchoRing OFF</button>
+          <button class="btn btn-outline-secondary btn-sm fw-bold buttonEchoring" onclick="echoON()">EchoRing ON</button>
           <div class="d-flex align-items-center gap-2">
             <div class="text-muted small fw-bold">Current TX:</div>
             <div id="echoringStatus" class="status-box bg-secondary text-white">--</div>
@@ -238,10 +238,38 @@
   </div>
 </div>
 
-    <div class="mb-3">
-        <label for="output" class="form-label">Console Output:</label>
-        <textarea id="output" class="form-control" rows="10" readonly></textarea>
+<div class="mb-3">
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <label for="output" class="form-label">Console Output:</label>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="mqttDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        MQTT Settings
+      </button>
+      <ul class="dropdown-menu p-3" aria-labelledby="mqttDropdown" style="min-width: 300px;">
+        <div class="mb-2">
+          <label class="form-label">Main Broker IP</label>
+          <input type="text" id="mainBrokerIp" class="form-control" placeholder="e.g., 192.168.1.100">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Main Broker Port</label>
+          <input type="number" id="mainBrokerPort" class="form-control" placeholder="e.g., 1883">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Sub-Broker IP</label>
+          <input type="text" id="subBrokerIp" class="form-control" placeholder="e.g., 192.168.1.101">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Sub-Broker Port</label>
+          <input type="number" id="subBrokerPort" class="form-control" placeholder="e.g., 1884">
+        </div>
+        <button class="btn btn-primary w-100" onclick="saveAndReconnectMQTT()">💾 Save & Reconnect</button>
+      </ul>
     </div>
+  </div>
+  <textarea id="output" class="form-control" rows="10" readonly></textarea>
+</div>
+
+
 </div>
 
 <div class="container mt-4">
@@ -320,7 +348,7 @@
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
 
-    async function echoOff() {
+    async function echoOFF() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -330,7 +358,7 @@
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
 
-    async function echoOn() {
+    async function echoON() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -339,6 +367,51 @@
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
+
+
+function loadMQTTSettings() {
+    fetch('/api/get-mqtt-settings')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("mainBrokerIp").value = data.main_broker_ip;
+            document.getElementById("mainBrokerPort").value = data.main_broker_port;
+            document.getElementById("subBrokerIp").value = data.sub_broker_ip;
+            document.getElementById("subBrokerPort").value = data.sub_broker_port;
+        })
+        .catch(err => console.error("Error loading MQTT settings:", err));
+}
+
+function saveAndReconnectMQTT() {
+    const mainIp = document.getElementById("mainBrokerIp").value;
+    const mainPort = parseInt(document.getElementById("mainBrokerPort").value, 10);
+    const subIp = document.getElementById("subBrokerIp").value;
+    const subPort = parseInt(document.getElementById("subBrokerPort").value, 10);
+
+    fetch('/api/update-mqtt-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            main_broker_ip: mainIp,
+            main_broker_port: mainPort,
+            sub_broker_ip: subIp,
+            sub_broker_port: subPort
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        return fetch('/api/reconnect-mqtt', { method: 'POST' });
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.status || data.error || "Reconnected.");
+    })
+    .catch(err => alert("Error during reconnect: " + err));
+}
+
+// Load settings when page loads
+window.addEventListener("DOMContentLoaded", loadMQTTSettings);
+
+
 
     function getFormData() {
         return {
@@ -405,5 +478,6 @@ setInterval(() => fetchSelectedTopic('echoringTopic', 'echoringTopicMsg'), 2000)
 
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

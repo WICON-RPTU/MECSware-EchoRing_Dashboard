@@ -3,21 +3,25 @@ import subprocess
 import json
 import threading
 import paho.mqtt.client as mqtt
+from paho.mqtt.publish import single as mqtt_publish
 
 app = Flask(__name__)
 
-# MQTT broker config
-MQTT_BROKER = "10.0.3.5"  # Broker for sending MQTT
-MQTT_PORT = 1337
+# Initial MQTT broker and sub-broker config
+mqtt_config = {
+    "broker_ip": "10.0.3.5",        # for publishing
+    "broker_port": 1337,
+    "sub_broker_ip": "10.0.5.3",    # for subscribing
+    "sub_broker_port": 1335
+}
 
-# MQTT subscriber config
-MQTT_SUB_BROKER = "10.0.5.3"
-MQTT_SUB_PORT = 1335
 MQTT_SUB_TOPIC = "#"  # subscribe to all topics
 
-# Store latest received MQTT messages
+# MQTT runtime state
 latest_echoring_message = "--"
 latest_messages = {}
+mqtt_client = None
+mqtt_pub_client = None      # MQTT publisher client
 
 
 @app.route('/')
@@ -90,9 +94,8 @@ def ping():
 
 @app.route('/api/send-mqtt', methods=['POST'])
 def send_mqtt():
-    from paho.mqtt.publish import single as mqtt_publish
+    global mqtt_pub_client
     data = request.json
-
     topic = data.get('topic')
     payload = data.get('payload')
 
@@ -100,15 +103,18 @@ def send_mqtt():
         return jsonify({"error": "Missing 'topic' or 'payload' in request."}), 400
 
     try:
-        mqtt_publish(
-            topic,
-            payload,
-            hostname=MQTT_BROKER,
-            port=MQTT_PORT
-        )
+        if mqtt_pub_client is None:
+            mqtt_pub_client = mqtt.Client()
+            mqtt_pub_client.connect(mqtt_config["broker_ip"], mqtt_config["broker_port"], 60)
+            mqtt_pub_client.loop_start()
+
+        mqtt_pub_client.publish(topic, payload)
+        print(f"[MQTT PUB] Sent to {mqtt_config['broker_ip']}:{mqtt_config['broker_port']} -> {topic}: {payload}")
         return jsonify({"status": "MQTT message sent."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 
 @app.route('/api/echoring-status')
@@ -123,7 +129,67 @@ def mqtt_message():
     return jsonify({"message": message})
 
 
-# MQTT Subscriber Thread
+@app.route('/api/update-mqtt-settings', methods=['POST'])
+def update_mqtt_settings():
+    data = request.json
+    try:
+        mqtt_config["broker_ip"] = data.get("main_broker_ip", mqtt_config["broker_ip"])
+        mqtt_config["broker_port"] = int(data.get("main_broker_port", mqtt_config["broker_port"]))
+        mqtt_config["sub_broker_ip"] = data.get("sub_broker_ip", mqtt_config["sub_broker_ip"])
+        mqtt_config["sub_broker_port"] = int(data.get("sub_broker_port", mqtt_config["sub_broker_port"]))
+        return jsonify({"status": "MQTT settings updated."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+
+@app.route('/api/get-mqtt-settings')
+def get_mqtt_settings():
+    return jsonify({
+        "main_broker_ip": mqtt_config['broker_ip'],
+        "main_broker_port": mqtt_config['broker_port'],
+        "sub_broker_ip": mqtt_config['sub_broker_ip'],
+        "sub_broker_port": mqtt_config['sub_broker_port']
+    })
+
+
+@app.route('/api/reconnect-mqtt', methods=['POST'])
+def reconnect_mqtt():
+    global mqtt_client, mqtt_pub_client
+
+    try:
+        if mqtt_client:
+            mqtt_client.loop_stop()
+            mqtt_client.disconnect()
+            print("[MQTT SUB] Disconnected.")
+
+        if mqtt_pub_client:
+            mqtt_pub_client.loop_stop()
+            mqtt_pub_client.disconnect()
+            print("[MQTT PUB] Disconnected.")
+
+        # Reconnect subscriber
+        mqtt_client = mqtt.Client()
+        mqtt_client.on_connect = on_connect
+        mqtt_client.on_message = on_message
+        mqtt_client.connect(mqtt_config["sub_broker_ip"], mqtt_config["sub_broker_port"], 60)
+        mqtt_client.loop_start()
+        print(f"[MQTT SUB] Reconnected to {mqtt_config['sub_broker_ip']}:{mqtt_config['sub_broker_port']}")
+
+        # Reconnect publisher
+        mqtt_pub_client = mqtt.Client()
+        mqtt_pub_client.connect(mqtt_config["broker_ip"], mqtt_config["broker_port"], 60)
+        mqtt_pub_client.loop_start()
+        print(f"[MQTT PUB] Reconnected to {mqtt_config['broker_ip']}:{mqtt_config['broker_port']}")
+
+        return jsonify({"status": "MQTT clients reconnected."})
+    except Exception as e:
+        return jsonify({"error": f"Reconnect failed: {e}"}), 500
+
+
+
+
+# MQTT Subscriber Setup
 def on_connect(client, userdata, flags, rc):
     print("[MQTT] Connected with result code", rc)
     client.subscribe(MQTT_SUB_TOPIC)
@@ -139,14 +205,18 @@ def on_message(client, userdata, msg):
 
 
 def mqtt_subscriber():
-    client = mqtt.Client()
-    client.on_connect = on_connect
-    client.on_message = on_message
+    global mqtt_client
+    mqtt_client = mqtt.Client()
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_message = on_message
     try:
-        client.connect(MQTT_SUB_BROKER, MQTT_SUB_PORT, 60)
-        client.loop_forever()
+        mqtt_client.connect(mqtt_config["sub_broker_ip"], mqtt_config["sub_broker_port"], 60)
+        mqtt_client.loop_start()
+        print(f"[MQTT] Subscriber connected to {mqtt_config['sub_broker_ip']}:{mqtt_config['sub_broker_port']}")
     except Exception as e:
-        print(f"[MQTT] Connection error: {e}")
+        print(f"[MQTT] Initial subscriber connection failed: {e}")
+
+
 
 
 if __name__ == '__main__':
