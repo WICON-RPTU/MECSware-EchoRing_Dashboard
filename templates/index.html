@@ -247,20 +247,12 @@
       </button>
       <ul class="dropdown-menu p-3" aria-labelledby="mqttDropdown" style="min-width: 300px;">
         <div class="mb-2">
-          <label class="form-label">Main Broker IP</label>
-          <input type="text" id="mainBrokerIp" class="form-control" placeholder="e.g., 192.168.1.100">
+          <label class="form-label">Broker IP</label>
+          <input type="text" id="mqttBrokerIp" class="form-control" placeholder="e.g., 192.168.1.100">
         </div>
         <div class="mb-2">
-          <label class="form-label">Main Broker Port</label>
-          <input type="number" id="mainBrokerPort" class="form-control" placeholder="e.g., 1883">
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Sub-Broker IP</label>
-          <input type="text" id="subBrokerIp" class="form-control" placeholder="e.g., 192.168.1.101">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Sub-Broker Port</label>
-          <input type="number" id="subBrokerPort" class="form-control" placeholder="e.g., 1884">
+          <label class="form-label">MBroker Port</label>
+          <input type="number" id="mqttBrokerPort" class="form-control" placeholder="e.g., 1883">
         </div>
         <button class="btn btn-primary w-100" onclick="saveAndReconnectMQTT()">💾 Save & Reconnect</button>
       </ul>
@@ -373,42 +365,27 @@ function loadMQTTSettings() {
     fetch('/api/get-mqtt-settings')
         .then(res => res.json())
         .then(data => {
-            document.getElementById("mainBrokerIp").value = data.main_broker_ip;
-            document.getElementById("mainBrokerPort").value = data.main_broker_port;
-            document.getElementById("subBrokerIp").value = data.sub_broker_ip;
-            document.getElementById("subBrokerPort").value = data.sub_broker_port;
+            document.getElementById("mqttBrokerIp").value = data.broker_ip;
+            document.getElementById("mqttBrokerPort").value = data.broker_port;
         })
         .catch(err => console.error("Error loading MQTT settings:", err));
 }
 
 function saveAndReconnectMQTT() {
-    const mainIp = document.getElementById("mainBrokerIp").value;
-    const mainPort = parseInt(document.getElementById("mainBrokerPort").value, 10);
-    const subIp = document.getElementById("subBrokerIp").value;
-    const subPort = parseInt(document.getElementById("subBrokerPort").value, 10);
+    const ip = document.getElementById("mqttBrokerIp").value;
+    const port = parseInt(document.getElementById("mqttBrokerPort").value, 10);
 
     fetch('/api/update-mqtt-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            main_broker_ip: mainIp,
-            main_broker_port: mainPort,
-            sub_broker_ip: subIp,
-            sub_broker_port: subPort
-        })
+        body: JSON.stringify({ broker_ip: ip, broker_port: port })
     })
+    .then(() => fetch('/api/reconnect-mqtt', { method: 'POST' }))
     .then(res => res.json())
-    .then(() => {
-        return fetch('/api/reconnect-mqtt', { method: 'POST' });
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.status || data.error || "Reconnected.");
-    })
+    .then(data => alert(data.status || data.error))
     .catch(err => alert("Error during reconnect: " + err));
 }
 
-// Load settings when page loads
 window.addEventListener("DOMContentLoaded", loadMQTTSettings);
 
 
