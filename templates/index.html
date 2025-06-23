@@ -401,7 +401,7 @@
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic: '/s2Route2', payload: 'actions2Route2' })
+            body: JSON.stringify({ topic: '/s2Route2', payload: 'actionS2Route2' })
         });
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
