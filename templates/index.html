@@ -198,30 +198,33 @@
   <div class="card-body p-3">
     <h6 class="card-title mb-3 text-center">Robot Control</h6>
     <div class="d-flex flex-column align-items-center gap-2">
-      <button class="btn btn-outline-warning btn-sm fw-bold buttonRobots" onclick="sendRobot()">Call Robots</button>
-      <button class="btn btn-outline-secondary btn-sm fw-bold buttonRobots" onclick="deliverCargo()">Deliver Cargo</button>
+      <button class="btn btn-outline-warning btn-sm fw-bold buttonRobots" onclick="Call_S1()">Call S1</button>
+      <button class="btn btn-outline-secondary btn-sm fw-bold buttonRobots" onclick="Call_S2()">Call S2</button>
       <div class="d-flex align-items-center gap-2">
         <div class="text-muted small fw-bold">Predicted Network Load:</div>
         <div id="robotStatus" class="status-box bg-secondary text-white">--</div>
       </div>
       <div class="input-group input-group-sm mt-2">
         <select id="robotTopic" class="form-select">
-          <option value="/robot">/robot</option>
-          <option value="/echoringfeedback">/echoringfeedback</option>
-          <option value="/actionButton1">/actionButton1</option>
-          <option value="/actionButton2">/actionButton2</option>
-          <option value="/actionButton3">/actionButton3</option>
-          <option value="/actionButton4">/actionButton4</option>
+          <option value="/callS1">/callS1</option>
+          <option value="/callS2">/callS2</option>
+          <option value="/s2AutoON">/s2AutoON</option>
+          <option value="/s2AutoOFF">/s2AutoOFF</option>
+          <option value="/s1Route1">/s1Route1</option>
+          <option value="/coopRoute">/coopRoute</option>
+          <option value="/s2Route2">/s2Route2</option>
         </select>
         <input id="robotTopicMsg" class="form-control" readonly>
       </div>
 
       <!-- New square buttons -->
       <div class="d-flex gap-3 mt-2">
-        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="actionButton1()">1</button>
-        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="actionButton2()">2</button>
-        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="actionButton3()">3</button>
-        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="actionButton4()">4</button>
+        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="S2_Auto_OFF()">S2 Auto OFF</button>
+        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="S2_Auto_ON()">S2 Auto ON</button>
+        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="S1_Route1()">S1 Route 1</button>
+        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="COOP_Route()">COOP Route</button>              <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="COOP_Route()">4</button>
+        <button class="btn btn-outline-primary btn-sm fw-bold" style="width: 32px; height: 32px;" onclick="S2_Route2()">S2 Route 2</button>
+
       </div>
       
     </div>
@@ -242,7 +245,6 @@
           <div class="input-group input-group-sm mt-2">
             <select id="echoringTopic" class="form-select">
               <option value="/echoringfeedback">/echoringfeedback</option>
-              <option value="/robot">/robot</option>
             </select>
             <input id="echoringTopicMsg" class="form-control" readonly>
           </div>
@@ -334,21 +336,21 @@
         updateOutput(json.output || json.error);
     }
 
-    async function sendRobot() {
+    async function Call_S1() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic: '/robot', payload: 'load' })
+            body: JSON.stringify({ topic: '/callS1', payload: 'actionCallS1' })
         });
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
 
-    async function deliverCargo() {
+    async function Call_S2() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic: '/robot', payload: 'deliver' })
+            body: JSON.stringify({ topic: '/callS2', payload: 'actionCallS2' })
         });
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
@@ -356,43 +358,51 @@
 
 
         //Actions for Button 1-4
-        async function actionButton1() {
+        async function S2_Auto_ON() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic: '/actionButton1', payload: 'Button1' })
+            body: JSON.stringify({ topic: '/s2AutoON', payload: 'actionS2AutoON' })
         });
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
-        async function actionButton2() {
+        async function S2_Auto_OFF() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic: '/actionButton2', payload: 'Button2' })
+            body: JSON.stringify({ topic: '/s2AutoOFF', payload: 'actionS2AutoOff' })
         });
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
-        async function actionButton3() {
+        async function S1_Route1() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic: '/actionButton3', payload: 'Button3' })
+            body: JSON.stringify({ topic: '/s1Route1', payload: 'actionS1Route1' })
         });
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
-        async function actionButton4() {
+        async function COOP_Route() {
         const res = await fetch('/api/send-mqtt', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic: '/actionButton4', payload: 'Button4' })
+            body: JSON.stringify({ topic: '/coopRoute', payload: 'actioncoopRoute' })
         });
         const json = await res.json();
         updateOutput(json.status || json.error || 'MQTT message sent.');
     }
-
+        async function S2_Route2() {
+        const res = await fetch('/api/send-mqtt', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ topic: '/s2Route2', payload: 'actions2Route2' })
+        });
+        const json = await res.json();
+        updateOutput(json.status || json.error || 'MQTT message sent.');
+    }
 
     async function echoOFF() {
         const res = await fetch('/api/send-mqtt', {
